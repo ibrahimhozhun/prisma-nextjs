@@ -12,6 +12,8 @@
     "@nextui-org/react": "^1.0.8-beta.5",
     "@prisma/client": "^3.12.0",
     "@types/cookie": "^0.4.1",
+    "@types/jsonwebtoken": "^8.5.8",
+    "@types/validator": "^13.7.2",
     "axios": "^0.26.1",
     "bcrypt": "^5.0.1",
     "cookie": "^0.5.0",
@@ -19,7 +21,7 @@
     "next": "12.1.4",
     "react": "18.0.0",
     "react-dom": "18.0.0",
-    "superstruct": "^0.15.4"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
