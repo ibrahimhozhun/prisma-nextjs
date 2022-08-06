@@ -29,7 +29,7 @@ prisma.$use(async (params, next) => {
   return next(params);
 });
 
-interface IError {
+export interface IError {
   code: string;
   message: string;
 }
@@ -41,7 +41,6 @@ export type ResponseType = {
   };
   error?: IError[];
 };
-
 // 7 days
 const maxAge = 7 * 24 * 60 * 60;
 
@@ -115,31 +114,83 @@ const checkReqBody = (
 const handleErrors = (err: any): IError[] => {
   let errors: any = {};
 
-  // Duplicate error
-  if (err.code === "P2002") {
-    errors["duplicate_error"] = "This email already have an account";
-    return errors;
-  }
+  try {
+    // Duplicate error
+    if (err.code === "P2002") {
+      errors["duplicate_error"] = "This email already have an account";
+      return errors;
+    }
 
-  // Validation errors
-  if (err.code.includes("INVALID")) {
-    errors[`${err.code.slice(8).trim().toLowerCase()}_validation_error`] =
-      err.message;
+    // Validation errors
+    if (err.code.includes("INVALID")) {
+      errors[`${err.code.slice(8).trim().toLowerCase()}_validation_error`] = err.message;
+    }
+  } catch (error) {
+    errors["unknown_error"] = error;
   }
 
   return errors;
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ResponseType>
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) {
   const { user } = req.body;
   const { action } = req.query;
 
   try {
     // Execute different actions depending on the action
     switch (action) {
+      case "currentUser":
+        const jwt_token = req.cookies.jwt;
+
+        if (jwt_token) {
+          // Verify token
+          jwt.verify(
+            jwt_token,
+            process.env.JWT_SECRET || "",
+            async (error: any, decodedToken: any) => {
+              if (error) {
+                const error: IError = {
+                  code: "INVALID_TOKEN",
+                  message: "Authentication token is invalid",
+                };
+
+                throw error;
+              } else {
+                // If token is valid we get the user with the id at token
+                const userFromDB = await prisma.user.findUnique({
+                  where: {
+                    id: decodedToken.id,
+                  },
+                });
+
+                if (userFromDB) {
+                  // We pass the user as an argument so we can use it in this function later
+                  res.status(200).json({ success: true, user: { email: userFromDB.email } });
+                } else {
+                  // If cannot find the user in the database send 404
+                  res.status(404).json({
+                    success: false,
+                    error: [
+                      {
+                        code: "NO_USER",
+                        message: "User not found",
+                      },
+                    ],
+                  });
+                }
+              }
+            }
+          );
+        } else {
+          const error: IError = {
+            code: "NO_TOKEN",
+            message: "No token found",
+          };
+
+          throw error;
+        }
+
+        break;
       case "register":
         checkReqBody(req.body, "user");
 
@@ -174,10 +225,7 @@ export default async function handler(
         // If user is found compare passwords
         if (userFromDatabase) {
           // Compare passwords
-          const authenticated = await bcrypt.compare(
-            user.password,
-            userFromDatabase.password
-          );
+          const authenticated = await bcrypt.compare(user.password, userFromDatabase.password);
 
           // If password matches generate jwt token and send success message
           if (authenticated) {
@@ -185,11 +233,8 @@ export default async function handler(
             const token = createToken(userFromDatabase.id);
 
             // Set cookie
-            res.setHeader(
-              "Set-Cookie",
-              cookie.serialize("jwt", token, cookieOptions)
-            );
-
+            res.setHeader("Set-Cookie", cookie.serialize("jwt", token, cookieOptions));
+            console.log(userFromDatabase);
             // Send success message
             res.status(200).json({
               success: true,
