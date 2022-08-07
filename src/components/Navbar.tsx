@@ -11,6 +11,7 @@ const Navbar: React.FC = () => {
       gap={1}
       css={{
         "min-width": "100vw",
+        h: "10vh",
         backgroundColor: "$background",
       }}
     >

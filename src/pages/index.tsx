@@ -9,7 +9,7 @@ const Home: NextPage = () => {
         alignItems='center'
         direction='column'
         css={{
-          h: "100vh",
+          h: "90vh",
           backgroundColor: "$dark",
         }}
       ></Grid.Container>
