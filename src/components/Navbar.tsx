@@ -1,4 +1,4 @@
-import { Button, Grid, Text } from "@nextui-org/react";
+import { Button, Grid, Loading, Text } from "@nextui-org/react";
 import Link from "next/link";
 import { useAuth } from "../contexts/auth";
 
@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
           <Text
             h3
             css={{
-              textGradient: "45deg, $blue500 -20%, $green300 50%",
+              textGradient: "45deg, $purple700, $yellow500 50%",
               cursor: "pointer",
             }}
           >
@@ -28,7 +28,11 @@ const Navbar: React.FC = () => {
           </Text>
         </Link>
       </Grid>
-      {!loading && user ? (
+      {loading ? (
+        <Grid xs={4} justify='center'>
+          <Loading />
+        </Grid>
+      ) : user ? (
         <Grid xs={6} justify='center'>
           <Text> {user?.email}</Text>
           <Button onClick={logout}>logout</Button>

@@ -39,7 +39,7 @@ export type ResponseType = {
   user?: {
     email: string;
   };
-  error?: IError[];
+  error?: IError;
 };
 // 7 days
 const maxAge = 7 * 24 * 60 * 60;
@@ -111,25 +111,23 @@ const checkReqBody = (
   }
 };
 
-const handleErrors = (err: any): IError[] => {
-  let errors: any = {};
-
+const handleErrors = (err: any) => {
   try {
     // Duplicate error
     if (err.code === "P2002") {
-      errors["duplicate_error"] = "This email already have an account";
-      return errors;
+      return {
+        code: "duplicate_error",
+        message: "This email already have an account",
+      };
     }
 
-    // Validation errors
-    if (err.code.includes("INVALID")) {
-      errors[`${err.code.slice(8).trim().toLowerCase()}_validation_error`] = err.message;
-    }
-  } catch (error) {
-    errors["unknown_error"] = error;
+    return err;
+  } catch (err) {
+    return {
+      code: "unknown_error",
+      message: err,
+    };
   }
-
-  return errors;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) {
@@ -170,12 +168,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                   // If cannot find the user in the database send 404
                   res.status(404).json({
                     success: false,
-                    error: [
-                      {
-                        code: "NO_USER",
-                        message: "User not found",
-                      },
-                    ],
+                    error: {
+                      code: "NO_USER",
+                      message: "User not found",
+                    },
                   });
                 }
               }
@@ -253,12 +249,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
           // If cannot find the user in the database send 404
           res.status(404).json({
             success: false,
-            error: [
-              {
-                code: "NO_USER",
-                message: "User not found",
-              },
-            ],
+            error: {
+              code: "NO_USER",
+              message: "User not found",
+            },
           });
         }
 
@@ -295,19 +289,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       default:
         res.status(400).json({
           success: false,
-          error: [
-            {
-              code: "INVALID_ACTION",
-              message: "Unknown action",
-            },
-          ],
+          error: {
+            code: "INVALID_ACTION",
+            message: "Unknown action",
+          },
         });
         break;
     }
   } catch (error) {
     console.log(error);
 
-    const errors: IError[] = handleErrors(error);
+    const errors = handleErrors(error);
 
     res.status(400).json({ success: false, error: errors });
   }
