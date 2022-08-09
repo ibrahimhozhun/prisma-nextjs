@@ -1,17 +1,18 @@
 import { Grid, Loading } from "@nextui-org/react";
-import { NextPage } from "next";
-import { useAuth } from "../contexts/auth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import type { NextPage } from "next";
 import FormCard, { FormCardProps } from "../components/FormCard";
+import { useAuth } from "../contexts/auth";
 
 const Register: NextPage = () => {
-  const { register, loading, user } = useAuth();
-  const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const { loading, user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
+    // If there is a logged in user redirect user to the home page
     if (user) {
       router.push("/");
     }
@@ -28,15 +29,12 @@ const Register: NextPage = () => {
   return (
     <>
       {loading ? (
-        <Grid.Container
-          // justify='center' alignItems='center'
-          css={{ h: "90vh", dflex: "center" }}
-        >
+        <Grid.Container css={{ h: "90vh", dflex: "center" }}>
           <Loading />
         </Grid.Container>
       ) : (
         <FormCard {...formCardProps} />
-      )}{" "}
+      )}
     </>
   );
 };

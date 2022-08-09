@@ -8,11 +8,11 @@ import { useRouter } from "next/router";
 interface IUser {
   email: string;
 }
-
 interface IAuthContext {
   user: IUser;
   loading: boolean;
   errors: any;
+  success: string;
   login: (email: string, password: string) => void;
   register: (email: string, password: string) => void;
   logout: () => void;
@@ -30,6 +30,7 @@ export const AuthContextProvider = ({ children }: any) => {
   const [user, setUser] = useState<IUser>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [errors, setErrors] = useState(null);
+  const [success, setSuccess] = useState<string>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -42,6 +43,9 @@ export const AuthContextProvider = ({ children }: any) => {
   }, [router.asPath]);
 
   const handleErrors = (error: any) => {
+    // First reset success
+    setSuccess(null);
+
     let errors: any = {};
 
     console.log(error);
@@ -104,7 +108,12 @@ export const AuthContextProvider = ({ children }: any) => {
   };
 
   const logout = async () => {
+    // Reset errors, success message and user state
+    setSuccess(null);
+    setErrors(null);
     setUser(null);
+
+    // Then log out
     await axios.get("/api/user?action=logout");
   };
 
@@ -122,6 +131,9 @@ export const AuthContextProvider = ({ children }: any) => {
 
       // Get user from response and assign to our user state
       setUser(res.data.user);
+
+      // Set success message
+      setSuccess("Registeration successful, please confirm your email address");
 
       // Reset errors
       setErrors(null);
@@ -146,6 +158,9 @@ export const AuthContextProvider = ({ children }: any) => {
       // Get user from response and assign to our user state
       setUser(res.data.user);
 
+      // Set success message
+      setSuccess("Successfully logged in");
+
       // Reset errors
       setErrors(null);
     } catch (error) {
@@ -160,6 +175,7 @@ export const AuthContextProvider = ({ children }: any) => {
         user,
         loading,
         errors,
+        success,
         login,
         register,
         logout,

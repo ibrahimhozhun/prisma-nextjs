@@ -1,9 +1,15 @@
 import { Grid } from "@nextui-org/react";
 import type { NextPage } from "next";
+import Notification from "../components/Notification";
+import { useAuth } from "../contexts/auth";
 
 const Home: NextPage = () => {
+  const { success } = useAuth();
+
   return (
-    <div>
+    <>
+      {/* If success is true, show notification with success message */}
+      {success && <Notification type='success' message={success} />}
       <Grid.Container
         justify='center'
         alignItems='center'
@@ -13,7 +19,7 @@ const Home: NextPage = () => {
           backgroundColor: "$dark",
         }}
       ></Grid.Container>
-    </div>
+    </>
   );
 };
 
