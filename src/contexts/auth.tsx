@@ -1,9 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { IError, ResponseType } from "../pages/api/user";
 import validator from "validator";
 import { useRouter } from "next/router";
+import { IError, ResponseType } from "../lib/utils";
 
 interface IUser {
   email: string;
@@ -96,7 +95,7 @@ export const AuthContextProvider = ({ children }: any) => {
   const getUser = async () => {
     try {
       // Check if there is a logged in user
-      const res = await axios.get<ResponseType>("/api/user?action=currentUser");
+      const res = await axios.get<ResponseType>("/api/auth/current-user");
 
       // Assign it to the user state
       setUser(res.data.user);
@@ -114,7 +113,10 @@ export const AuthContextProvider = ({ children }: any) => {
     setUser(null);
 
     // Then log out
-    await axios.get("/api/user?action=logout");
+    await axios.get("/api/auth/logout");
+
+    // And redirect user back to home page
+    router.push("/");
   };
 
   const register = async (email: string, password: string) => {
@@ -125,7 +127,7 @@ export const AuthContextProvider = ({ children }: any) => {
       checkFormInput(email, password, true);
 
       // Register user
-      const res = await axios.post<ResponseType>("/api/user?action=register", {
+      const res = await axios.post<ResponseType>("/api/auth/register", {
         user: { email, password },
       });
 
@@ -151,7 +153,7 @@ export const AuthContextProvider = ({ children }: any) => {
       checkFormInput(email, password);
 
       // Make login request, if anything goes wrong it will throw an error
-      const res = await axios.post<ResponseType>("/api/user?action=login", {
+      const res = await axios.post<ResponseType>("/api/auth/login", {
         user: { email, password },
       });
 
