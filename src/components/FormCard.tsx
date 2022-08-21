@@ -50,7 +50,9 @@ const FormCard: FC<FormCardProps> = ({ password, setPassword, email, setEmail, t
       {/* If there is any errors, show notification with the error message */}
       {errors && <Notification type='error' message={errors[Object.keys(errors)[0]]} />}
       {loading ? (
-        <Loading />
+        <Grid.Container css={{ h: "90vh", dflex: "center" }}>
+          <Loading />
+        </Grid.Container>
       ) : (
         <Grid.Container
           alignItems='center'
@@ -62,11 +64,7 @@ const FormCard: FC<FormCardProps> = ({ password, setPassword, email, setEmail, t
           <Spacer y={2.5} />
           <Grid>
             <form autoComplete='off' onSubmit={handleSubmit}>
-              <Card
-                css={{
-                  h: errors ? "45vh" : "42vh",
-                }}
-              >
+              <Card>
                 <Card.Header>
                   <Grid.Container justify='center'>
                     <Text h3>{type}</Text>

@@ -1,7 +1,8 @@
-import { Avatar, Button, Dropdown, Grid, Loading, Text } from "@nextui-org/react";
+import { Avatar, Button, Dropdown, Grid, Loading, Text, Tooltip } from "@nextui-org/react";
 import Link from "next/link";
 import Notification from "../components/Notification";
 import { useAuth } from "../contexts/auth";
+import AuthButtonGroup from "./AuthButtonGroup";
 
 const Navbar: React.FC = () => {
   const { user, loading, logout, success } = useAuth();
@@ -25,7 +26,7 @@ const Navbar: React.FC = () => {
           backgroundColor: "$background",
         }}
       >
-        <Grid xs={3} justify='center'>
+        <Grid xs={9} md={3} justify='center'>
           <Link href='/' passHref>
             <Text
               h2
@@ -43,17 +44,123 @@ const Navbar: React.FC = () => {
             <Loading />
           </Grid>
         ) : user ? (
-          <Grid xs={3} justify='center' alignItems='center'>
-            {/*
+          <>
+            {/* For desktop */}
+            <Grid xs={0} md={3} justify='space-evenly' alignItems='center'>
+              <Link href='/account' passHref>
+                <Text
+                  h4
+                  color='success'
+                  css={{
+                    cursor: "pointer",
+                    transitionDuration: "500ms",
+                    "&:hover": {
+                      scale: 1.1,
+                    },
+                  }}
+                >
+                  Account
+                </Text>
+              </Link>
+              <Link href='/profile' passHref>
+                <Text
+                  h4
+                  color='success'
+                  css={{
+                    cursor: "pointer",
+                    transitionDuration: "500ms",
+                    "&:hover": {
+                      scale: 1.1,
+                    },
+                  }}
+                >
+                  Profile
+                </Text>
+              </Link>
+              <Button
+                auto
+                onClick={logout}
+                color='error'
+                icon={
+                  <svg
+                    style={{
+                      height: "25px",
+                      width: "25px",
+                    }}
+                    xmlns='http://www.w3.org/2000/svg'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      d='M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1'
+                    />
+                  </svg>
+                }
+              />
+            </Grid>
+            {/* Menu for mobile devices */}
+            <Grid xs={3} md={0} justify='center' alignItems='center'>
+              {/*
             I changed the dropdown trigger because there's a bug in the dropdown component
             related github issue => https://github.com/nextui-org/nextui/issues/649
            */}
-            <Dropdown trigger='longPress' placement='bottom-left'>
-              <Dropdown.Trigger>
-                <Avatar
+              <Dropdown trigger='longPress' placement='bottom-left'>
+                <Dropdown.Trigger>
+                  <Avatar
+                    color='warning'
+                    squared
+                    as='button'
+                    icon={
+                      <svg
+                        style={{
+                          height: "25px",
+                          width: "25px",
+                        }}
+                        xmlns='http://www.w3.org/2000/svg'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          d='M4 6h16M4 12h16m-7 6h7'
+                        />
+                      </svg>
+                    }
+                  />
+                </Dropdown.Trigger>
+                <Dropdown.Menu aria-label='Avatar Actions' onAction={dropdownHandler}>
+                  <Dropdown.Item key='account'>
+                    <Link href='/account' passHref>
+                      <Text color='success'>{user?.email}</Text>
+                    </Link>
+                  </Dropdown.Item>
+                  <Dropdown.Item key='profile'>
+                    <Link href='/profile' passHref>
+                      <Text color='success'>Profile</Text>
+                    </Link>
+                  </Dropdown.Item>
+                  <Dropdown.Item key='logout' color='error' textColor='error' withDivider>
+                    Log Out
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </Grid>
+          </>
+        ) : (
+          <>
+            {/* Menu for mobile devices*/}
+            <Grid xs={3} md={0} justify='center' alignItems='center'>
+              <Tooltip content={<AuthButtonGroup />} placement='bottomEnd' rounded>
+                <Button
+                  auto
                   color='warning'
-                  squared
-                  as='button'
                   icon={
                     <svg
                       style={{
@@ -69,40 +176,18 @@ const Navbar: React.FC = () => {
                       <path
                         strokeLinecap='round'
                         strokeLinejoin='round'
-                        d='M4 6h16M4 12h16M4 18h16'
+                        d='M4 6h16M4 12h16m-7 6h7'
                       />
                     </svg>
                   }
                 />
-              </Dropdown.Trigger>
-              <Dropdown.Menu
-                color='secondary'
-                aria-label='Avatar Actions'
-                onAction={dropdownHandler}
-              >
-                <Dropdown.Item key='account'>
-                  <Link href='/account'>{user?.email}</Link>
-                </Dropdown.Item>
-                <Dropdown.Item key='profile'>
-                  <Link href='/profile'>Profile</Link>
-                </Dropdown.Item>
-                <Dropdown.Item key='logout' color='error' withDivider>
-                  Log Out
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </Grid>
-        ) : (
-          <Grid xs={4} justify='center'>
-            <Button.Group size='sm' flat>
-              <Link href='/login' passHref>
-                <Button>Login</Button>
-              </Link>
-              <Link href='/register' passHref>
-                <Button>Register</Button>
-              </Link>
-            </Button.Group>
-          </Grid>
+              </Tooltip>
+            </Grid>
+            {/* For desktop */}
+            <Grid xs={0} md={4} justify='center' alignItems='center'>
+              <AuthButtonGroup />
+            </Grid>
+          </>
         )}
       </Grid.Container>
     </>

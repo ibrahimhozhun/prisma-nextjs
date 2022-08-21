@@ -28,13 +28,7 @@ const Register: NextPage = () => {
 
   return (
     <>
-      {loading ? (
-        <Grid.Container css={{ h: "90vh", dflex: "center" }}>
-          <Loading />
-        </Grid.Container>
-      ) : (
-        <FormCard {...formCardProps} />
-      )}
+      <FormCard {...formCardProps} />
     </>
   );
 };

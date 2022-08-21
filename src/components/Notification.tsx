@@ -32,6 +32,9 @@ const Notification: React.FC<CardProps> = ({ type, message }) => {
           top: "15vh",
           minHeight: "7vh",
           w: "25vw",
+          "@xsMax": {
+            w: "80vw",
+          },
           // Slide the notification in 0.5 seconds to the right
           transition: "all .5s ease-in-out",
           translateX: show && "0",
